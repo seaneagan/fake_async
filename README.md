@@ -1,6 +1,8 @@
 fake_async
 ==========
 
+[![Build Status](https://drone.io/github.com/seaneagan/fake_async/status.png)](https://drone.io/github.com/seaneagan/fake_async/latest)
+
 The `fake_async` package provides a `FakeAsync` class which allows one to fake 
 asynchronous events such as timers and microtasks in order to test for them 
 deterministically and without delay.
