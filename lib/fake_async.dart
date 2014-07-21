@@ -86,9 +86,7 @@ class _FakeAsync extends FakeAsync {
   Duration get elapsed => _elapsed;
   Duration _elapsingTo;
 
-  _FakeAsync() : super._() {
-    _elapsed;
-  }
+  _FakeAsync() : super._() {}
 
   void elapse(Duration duration) {
     if (duration.inMicroseconds < 0) {

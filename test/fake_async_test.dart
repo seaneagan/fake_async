@@ -31,10 +31,12 @@ main() {
     group('elapseBlocking', () {
 
       test('should elapse time without calling timers', () {
-        var timerCalled = false;
-        new Timer(elapseBy ~/ 2, () => timerCalled = true);
-        new FakeAsync().elapseBlocking(elapseBy);
-        expect(timerCalled, isFalse);
+        new FakeAsync().run((async) {
+          var timerCalled = false;
+          new Timer(elapseBy ~/ 2, () => timerCalled = true);
+          async.elapseBlocking(elapseBy);
+          expect(timerCalled, isFalse);
+        });
       });
 
       test('should elapse time by the specified amount', () {
