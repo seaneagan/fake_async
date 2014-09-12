@@ -193,7 +193,7 @@ main() {
         });
 
         test('should add event before advancing time', () {
-          return new FakeAsync().run((async) {
+          return new Future(() => new FakeAsync().run((async) {
             var controller = new StreamController();
             var ret = controller.stream.first.then((_) {
               expect(async.elapsed, Duration.ZERO);
@@ -201,7 +201,7 @@ main() {
             controller.add(null);
             async.elapse(const Duration(minutes: 1));
             return ret;
-          });
+          }));
         });
 
         test('should increase negative duration timers to zero duration', () {
