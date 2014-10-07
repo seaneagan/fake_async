@@ -33,7 +33,17 @@ void main() {
 }
 ```
 
+##Integration with `package:clock`
+
+It also integrates with the [clock package][] so that [now][] and 
+[getStopwatch][] are consistent with the fake elapsing of time.  The 
+`FakeAsync` constructor takes an `initialTime` argument to set the initial 
+time.
+
 [Zone]: https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-async.Zone
 [Timer]: https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-async.Timer
 [scheduleMicrotask]: https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-async.Zone#id_scheduleMicrotask
 [event_queue]: https://www.dartlang.org/articles/event-loop/#darts-event-loop-and-queues
+[clock package]: https://pub.dartlang.org/packages/clock
+[now]: http://www.dartdocs.org/documentation/clock/latest#clock/clock@id_now
+[getStopwatch]: http://www.dartdocs.org/documentation/clock/latest#clock/clock@id_getStopwatch

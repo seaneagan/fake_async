@@ -17,6 +17,8 @@ library fake_async;
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:clock/clock.dart' as clock;
+
 /// Allows one to fake asynchronous events such as timers and microtasks in
 /// order to test for them deterministically and without delay.
 ///
@@ -30,7 +32,12 @@ import 'dart:collection';
 /// simulated using [elapseBlocking].
 abstract class FakeAsync {
 
-  factory FakeAsync() = _FakeAsync;
+  /// [initialTime] controls the value of [clock.now] within [run] 
+  /// callbacks.  It defaults to the value of [clock.now] immediately before 
+  /// the [run] callback.
+  factory FakeAsync({
+      DateTime initialTime
+  }) = _FakeAsync;
 
   FakeAsync._();
 
@@ -85,8 +92,13 @@ class _FakeAsync extends FakeAsync {
   Duration _elapsed = Duration.ZERO;
   Duration get elapsed => _elapsed;
   Duration _elapsingTo;
-
-  _FakeAsync() : super._() {}
+  DateTime _initialTime;
+  
+  _FakeAsync({
+    DateTime initialTime
+  }) 
+      : super._(),
+        _initialTime = initialTime {}
 
   void elapse(Duration duration) {
     if (duration.inMicroseconds < 0) {
@@ -120,7 +132,9 @@ class _FakeAsync extends FakeAsync {
     if (_zone == null) {
       _zone = Zone.current.fork(specification: _zoneSpec);
     }
-    return _zone.runGuarded(() => callback(this));
+    var currentElapsed = _elapsed;
+    var fakeClock = new clock.Clock(initialTime: _initialTime, elapsed: () => _elapsed - currentElapsed);
+    return _zone.runGuarded(() => clock.withClock(fakeClock, () => callback(this)));
   }
   Zone _zone;
 

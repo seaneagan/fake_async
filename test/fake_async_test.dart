@@ -16,6 +16,7 @@ library fake_async_test;
 
 import 'dart:async';
 
+import 'package:clock/clock.dart' as clock;
 import 'package:fake_async/fake_async.dart';
 import 'package:unittest/unittest.dart';
 
@@ -24,8 +25,26 @@ main() {
 
     var elapseBy = const Duration(days: 1);
 
-    test('should set initial time', () {
+    test('should initialize elapsed to zero', () {
       expect(new FakeAsync().elapsed, Duration.ZERO);
+    });
+    
+    test('should have correct clock.now value', () {
+      var initialTime = new DateTime(2014, 3, 6);
+      new FakeAsync(initialTime: initialTime).run((async) {
+        expect(clock.now, initialTime);
+        async.elapse(elapseBy);
+        expect(clock.now, initialTime.add(elapseBy));
+      });
+    });
+
+    test('should have correct clock.getStopwatch() value', () {
+      new FakeAsync().run((async) {
+        var stopwatch = clock.getStopwatch()..start();
+        expect(stopwatch.elapsed, Duration.ZERO);
+        async.elapse(const Duration(seconds: 1));
+        expect(stopwatch.elapsed, const Duration(seconds: 1));
+      });
     });
 
     group('elapseBlocking', () {
