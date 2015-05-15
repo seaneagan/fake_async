@@ -28,7 +28,7 @@ main() {
     test('should initialize elapsed to zero', () {
       expect(new FakeAsync().elapsed, Duration.ZERO);
     });
-    
+
     test('should have correct clock.now value', () {
       var initialTime = new DateTime(2014, 3, 6);
       new FakeAsync(initialTime: initialTime).run((async) {
@@ -339,6 +339,99 @@ main() {
 
       });
 
+    });
+
+    group('flushMicrotasks', () {
+      test('should flush a microtask', () {
+        new FakeAsync().run((async) {
+          bool microtaskRan = false;
+          new Future.microtask(() {
+            microtaskRan = true;
+          });
+          expect(microtaskRan, isFalse,
+              reason: 'should not flush until asked to');
+          async.flushMicrotasks();
+          expect(microtaskRan, isTrue);
+        });
+      });
+
+      test('should flush microtasks scheduled by microtasks in order', () {
+        new FakeAsync().run((async) {
+          final log = [];
+          new Future.microtask(() {
+            log.add(1);
+            new Future.microtask(() {
+              log.add(3);
+            });
+          });
+          new Future.microtask(() {
+            log.add(2);
+          });
+          expect(log, hasLength(0), reason: 'should not flush until asked to');
+          async.flushMicrotasks();
+          expect(log, [1, 2, 3]);
+        });
+      });
+
+      test('should not run timers', () {
+        new FakeAsync().run((async) {
+          final log = [];
+          new Future.microtask(() {
+            log.add(1);
+          });
+          new Future(() {
+            log.add(2);
+          });
+          new Timer.periodic(new Duration(seconds: 1), (_) {
+            log.add(2);
+          });
+          async.flushMicrotasks();
+          expect(log, [1]);
+        });
+      });
+    });
+
+    group('stats', () {
+      test('should report the number of pending microtasks', () {
+        new FakeAsync().run((async) {
+          expect(async.microtaskCount, 0);
+          scheduleMicrotask(() => null);
+          expect(async.microtaskCount, 1);
+          scheduleMicrotask(() => null);
+          expect(async.microtaskCount, 2);
+          async.flushMicrotasks();
+          expect(async.microtaskCount, 0);
+        });
+      });
+
+      test('it should report the number of pending periodic timers', () {
+        new FakeAsync().run((async) {
+          expect(async.periodicTimerCount, 0);
+          Timer timer = new Timer.periodic(new Duration(minutes: 30),
+              (Timer timer) { });
+          expect(async.periodicTimerCount, 1);
+          new Timer.periodic(new Duration(minutes: 20), (Timer timer) { });
+          expect(async.periodicTimerCount, 2);
+          async.elapse(new Duration(minutes: 20));
+          expect(async.periodicTimerCount, 2);
+          timer.cancel();
+          expect(async.periodicTimerCount, 1);
+        });
+      });
+
+      test('it should report the number of pending non periodic timers', () {
+        new FakeAsync().run((async) {
+          expect(async.nonPeriodicTimerCount, 0);
+          Timer timer = new Timer(new Duration(minutes: 30), () { });
+          expect(async.nonPeriodicTimerCount, 1);
+          new Timer(new Duration(minutes: 20), () { });
+          expect(async.nonPeriodicTimerCount, 2);
+          async.elapse(new Duration(minutes: 25));
+          expect(async.nonPeriodicTimerCount, 1);
+          timer.cancel();
+          expect(async.nonPeriodicTimerCount, 0);
+        });
+      });
     });
 
   });
