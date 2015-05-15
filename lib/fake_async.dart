@@ -86,6 +86,12 @@ abstract class FakeAsync {
   /// The [callback] is called with `this` as argument.
   run(callback(FakeAsync self));
 
+  /// Runs all remaining microtasks, including those scheduled as a result of
+  /// running them, until there are no more microtasks scheduled.
+  ///
+  /// Does not run timers.
+  void flushMicrotasks();
+
   /// The number of created periodic timers that have not been canceled.
   int get periodicTimerCount;
 
@@ -149,6 +155,11 @@ class _FakeAsync extends FakeAsync {
     return _zone.runGuarded(() => clock.withClock(fakeClock, () => callback(this)));
   }
   Zone _zone;
+
+  @override
+  void flushMicrotasks() {
+    _drainMicrotasks();
+  }
 
   @override
   int get periodicTimerCount =>
