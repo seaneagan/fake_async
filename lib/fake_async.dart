@@ -112,8 +112,8 @@ class _FakeAsync extends FakeAsync {
   _FakeAsync({
     DateTime initialTime
   })
-      : super._(),
-        _initialTime = initialTime {}
+      : _initialTime = initialTime,
+        super._();
 
   @override
   void elapse(Duration duration) {
@@ -206,7 +206,6 @@ class _FakeAsync extends FakeAsync {
   Queue<Function> _microtasks = new Queue();
 
   Set<_FakeTimer> _timers = new Set<_FakeTimer>();
-  bool _waitingForTimer = false;
 
   Timer _createTimer(Duration duration, Function callback, bool isPeriodic) {
     var timer = new _FakeTimer._(duration, callback, isPeriodic, this);
