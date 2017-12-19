@@ -112,8 +112,8 @@ class _FakeAsync extends FakeAsync {
   _FakeAsync({
     DateTime initialTime
   })
-      : super._(),
-        _initialTime = initialTime {}
+      :_initialTime = initialTime,
+        super._() {}
 
   @override
   void elapse(Duration duration) {
@@ -286,5 +286,5 @@ class _FakeTimer implements Timer {
  */
 // TODO: Move this to a "compare" package, see
 // https://github.com/google/quiver-dart/pull/119
-dynamic _minOf(Iterable i, [Comparator compare = Comparable.compare]) =>
+dynamic _minOf(Iterable i, Comparator compare) =>
     i.isEmpty ? null : i.reduce((a, b) => compare(a, b) < 0 ? a : b);
