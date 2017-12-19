@@ -1,5 +1,5 @@
 name: fake_async
-version: 0.1.2
+version: 0.2.0
 author: Sean Eagan <seaneagan1@gmail.com>
 description: Fake asynchronous events such as timers and microtasks in order to test for them deterministically and without delay.
 homepage: http://github.com/seaneagan/fake_async
