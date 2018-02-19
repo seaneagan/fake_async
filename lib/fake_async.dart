@@ -31,13 +31,10 @@ import 'package:clock/clock.dart' as clock;
 /// The synchronous passage of time (blocking or expensive calls) can also be
 /// simulated using [elapseBlocking].
 abstract class FakeAsync {
-
   /// [initialTime] controls the value of [clock.now] within [run]
   /// callbacks.  It defaults to the value of [clock.now] immediately before
   /// the [run] callback.
-  factory FakeAsync({
-      DateTime initialTime
-  }) = _FakeAsync;
+  factory FakeAsync({DateTime initialTime}) = _FakeAsync;
 
   FakeAsync._();
 
@@ -103,15 +100,12 @@ abstract class FakeAsync {
 }
 
 class _FakeAsync extends FakeAsync {
-
   Duration _elapsed = Duration.ZERO;
   Duration get elapsed => _elapsed;
   Duration _elapsingTo;
   DateTime _initialTime;
 
-  _FakeAsync({
-    DateTime initialTime
-  })
+  _FakeAsync({DateTime initialTime})
       : super._(),
         _initialTime = initialTime {}
 
@@ -146,14 +140,17 @@ class _FakeAsync extends FakeAsync {
   }
 
   @override
-  run(callback(FakeAsync self)) {
+  void run(callback(FakeAsync self)) {
     if (_zone == null) {
       _zone = Zone.current.fork(specification: _zoneSpec);
     }
     var currentElapsed = _elapsed;
-    var fakeClock = new clock.Clock(initialTime: _initialTime, elapsed: () => _elapsed - currentElapsed);
-    return _zone.runGuarded(() => clock.withClock(fakeClock, () => callback(this)));
+    var fakeClock = new clock.Clock(
+        initialTime: _initialTime, elapsed: () => _elapsed - currentElapsed);
+    return _zone
+        .runGuarded(() => clock.withClock(fakeClock, () => callback(this)));
   }
+
   Zone _zone;
 
   @override
@@ -173,27 +170,12 @@ class _FakeAsync extends FakeAsync {
   int get microtaskCount => _microtasks.length;
 
   ZoneSpecification get _zoneSpec => new ZoneSpecification(
-      createTimer: (
-          _,
-          __,
-          ___,
-          Duration duration,
-          Function callback) {
+          createTimer: (_, __, ___, Duration duration, Function callback) {
         return _createTimer(duration, callback, false);
-      },
-      createPeriodicTimer: (
-          _,
-          __,
-          ___,
-          Duration duration,
-          Function callback) {
+      }, createPeriodicTimer:
+              (_, __, ___, Duration duration, Function callback) {
         return _createTimer(duration, callback, true);
-      },
-      scheduleMicrotask: (
-          _,
-          __,
-          ___,
-          Function microtask) {
+      }, scheduleMicrotask: (_, __, ___, Function microtask) {
         _microtasks.add(microtask);
       });
 
@@ -240,11 +222,9 @@ class _FakeAsync extends FakeAsync {
   _hasTimer(_FakeTimer timer) => _timers.contains(timer);
 
   _cancelTimer(_FakeTimer timer) => _timers.remove(timer);
-
 }
 
 class _FakeTimer implements Timer {
-
   final Duration _duration;
   final Function _callback;
   final bool _isPeriodic;
